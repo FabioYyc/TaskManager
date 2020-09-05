@@ -1,46 +1,46 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { Task, TaskStatus } from './task.model';
+import { Task } from './task.entity';
 import { CreateTaskDto } from './dto/createTask.dto';
 import { getTasksFilterDto } from './dto/getTasksFilter.dto';
 import { TaskValidationPipe } from './pipes/task-status-validation.pipe';
+import { TaskStatus } from './task.enum';
 
 @Controller('tasks')
 export class TasksController {
 constructor(private taskService:TasksService){
 }
-  @Get('/all')
-  getAllTasks(): Task[] {
-    return this.taskService.getAllTasks();
-  }
+  // @Get('/all')
+  // getAllTasks(): Task[] {
+  //   return this.taskService.getAllTasks();
+  // }
 
   @Post()
   @UsePipes(ValidationPipe) //take the dto and validate data against the dto
   createTask(
    @Body() createTaskDto:CreateTaskDto
-  ):Task {
+  ):Promise<Task> {
     return this.taskService.createTask(createTaskDto);
   }
 
   @Get("/:id")
   getTaskById(
-    @Param('id') id:string
-  ): Task{
-    console.log(id)
+    @Param('id', ParseIntPipe) id:number
+  ): Promise<Task>{
     return this.taskService.getTaskById(id)
   }
 
   @Delete("/:id")
   deleteTask(
-    @Param('id') id:string
+    @Param('id', ParseIntPipe) id:number
   ) {
-    this.taskService.deleteTask(id)
+    return this.taskService.deleteTask(id)
   }
   @Patch('/:id/status')
   updateTask(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body('status', TaskValidationPipe) status:TaskStatus
-  ) :Task{
+  ) :Promise<Task>{
     return this.taskService.updateTask(id, status);
   }
 
@@ -48,7 +48,7 @@ constructor(private taskService:TasksService){
   @Get()
   getTasks(
     @Query(ValidationPipe)filterDto: getTasksFilterDto
-  ): Task[] {
+  ) {
     return this.taskService.searchTask(filterDto);
   }
 
