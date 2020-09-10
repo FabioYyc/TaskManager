@@ -30,31 +30,38 @@ constructor(private taskService:TasksService){
 
   @Get("/:id")
   getTaskById(
-    @Param('id', ParseIntPipe) id:number
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user:User
   ): Promise<Task>{
-    return this.taskService.getTaskById(id)
+    return this.taskService.getTaskById(id, user)
   }
 
   @Delete("/:id")
   deleteTask(
-    @Param('id', ParseIntPipe) id:number
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser() user:User
   ) {
-    return this.taskService.deleteTask(id)
+    return this.taskService.deleteTask(id, user)
   }
+
+
   @Patch('/:id/status')
   updateTask(
     @Param('id', ParseIntPipe) id: number,
-    @Body('status', TaskValidationPipe) status:TaskStatus
+    @Body('status', TaskValidationPipe) status: TaskStatus,
+    @GetUser() user:User
   ) :Promise<Task>{
-    return this.taskService.updateTask(id, status);
+    return this.taskService.updateTask(id, status,user);
   }
 
 
   @Get()
   getTasks(
-    @Query(ValidationPipe)filterDto: getTasksFilterDto
+    @Query(ValidationPipe) filterDto: getTasksFilterDto,
+    @GetUser() user : User
+    
   ) {
-    return this.taskService.searchTask(filterDto);
+    return this.taskService.searchTask(filterDto, user);
   }
 
 
